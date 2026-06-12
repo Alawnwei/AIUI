@@ -1,7 +1,9 @@
-import xToolkit,pytest,allure # 第三方模块(别人已经写好的代码
+import pytest, allure
+import pandas as pd
+
 from AIDemo import process_by_ai
 
-all_case = xToolkit.xfile.read("WEB测试用例.xls").excel_to_dict(sheet=1)
+all_case = pd.read_excel("WEB测试用例.xlsx", sheet_name=0, engine='openpyxl').to_dict(orient='records')
 print("所有测试用例:", all_case)
 
 
@@ -9,6 +11,6 @@ print("所有测试用例:", all_case)
 @pytest.mark.asyncio
 async def test_case_exec(case):
     allure.dynamic.title(case["用例标题"])
-    test_result = await process_by_ai(case["用例描述"])
+    test_result = await process_by_ai(case)
     assert test_result == "测试通过", "测试不通过"
 

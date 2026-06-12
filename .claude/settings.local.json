@@ -3,7 +3,24 @@
     "allow": [
       "Bash(lark-cli version *)",
       "Bash(pip show *)",
-      "Bash(pip list *)"
+      "Bash(pip list *)",
+      "Bash(python -m pip show pytest-asyncio)",
+      "Bash(python -m pip install pytest-asyncio)",
+      "Bash(python -c \"import xToolkit; print\\(xToolkit.__version__ if hasattr\\(xToolkit, '__version__'\\) else 'ok'\\); print\\(xToolkit.__file__\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(python -c \"import openpyxl; print\\('openpyxl available'\\)\")",
+      "Bash(python -c \"import pandas; print\\('pandas ok'\\)\")",
+      "Bash(python -m pip install openpyxl)",
+      "Bash(python -X utf8 -c ' *)",
+      "Bash(xxd \"screenshot-20260612-152815.png\")",
+      "Bash(python3 *)",
+      "WebFetch(domain:ds-restful-api-bj-prod.oss-cn-beijing.aliyuncs.com)",
+      "Bash(cat pytest.ini)",
+      "Bash(timeout 30 python -c ' *)",
+      "Bash(powershell -Command ' *)",
+      "Bash(pip install *)",
+      "Bash(python -m pytest AITesting/Test_core.py -v -s --timeout=60 -x)",
+      "Bash(python -m pytest AITesting/Test_core.py -v -s -x)"
     ]
   }
 }
