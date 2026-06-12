@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(lark-cli version *)"
+      "Bash(lark-cli version *)",
+      "Bash(pip show *)",
+      "Bash(pip list *)"
     ]
   }
 }
