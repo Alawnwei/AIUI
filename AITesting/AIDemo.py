@@ -1,7 +1,6 @@
 import asyncio
 from dotenv import load_dotenv
-#from langchain_openai import ChatOpenAI
-from browser_use import Browser, BrowserProfile, BrowserSession, Agent
+from browser_use import Browser, BrowserSession, Agent
 from browser_use.llm import ChatOpenAI
 from browser_use.agent.views import AgentOutput
 from browser_use.browser.views import BrowserStateSummary
@@ -109,7 +108,7 @@ def _get_page_from_session(session: BrowserSession) -> Page | None:
 class _WrappedDOMState:
     """包裹 SerializedDOMState，替换 llm_representation 输出，其余属性透传回原始对象。"""
 
-    def __init__(self, original, text):
+    def __init__(self, original: object, text: object) -> None:
         object.__setattr__(self, '_original', original)
         object.__setattr__(self, '_text', text)
 
@@ -117,7 +116,7 @@ class _WrappedDOMState:
     def selector_map(self):
         return self._original.selector_map
 
-    def llm_representation(self, *args, **kwargs):
+    def llm_representation(self):
         return self._text
 
     def __getattr__(self, name):
@@ -250,7 +249,7 @@ async def process_by_ai(task_description: str | None = None):
     )
 
     if task_description is None:
-        url = "http://page-web-aia-test1.test.eks.za-gj-aws.net/ci/claimsubmission?61PwVNbuphp3Ztxkpy/vO6g/OjW1WVP+ULLUQzOVybiQn6U0x8Q="
+        url = "https://page-web-aia-test1.test.eks.za-gj-aws.net/ci/claimsubmission?61PwVNbuphp3Ztxkpy/vO6g/OjW1WVP+ULLUQzOVybiQn6U0x8Q="
         task = f"""1. 打开网页 {url}
                 2. 如果出现REMINDER弹窗，点击next按钮
                 3. Benefit Name下拉菜单选择"Lifestyle Assistance Allowance Benefit"
