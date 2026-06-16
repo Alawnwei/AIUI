@@ -12,3 +12,4 @@ async def test_case_exec(case):
     test_result = await process_by_ai(case["用例描述"])
     assert test_result == "测试通过", "测试不通过"
 
+

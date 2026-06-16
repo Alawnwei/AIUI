@@ -1,7 +1,8 @@
 import asyncio
 from dotenv import load_dotenv
+#from langchain_openai import ChatOpenAI
+from browser_use import Browser, BrowserProfile, BrowserSession, Agent
 from browser_use.llm import ChatOpenAI
-from browser_use import BrowserProfile, BrowserSession, Agent  # 引入三方模块
 from browser_use.agent.views import AgentOutput
 from browser_use.browser.views import BrowserStateSummary
 import openlit # 导入 openlit 库
@@ -222,10 +223,28 @@ async def process_by_ai(task_description: str | None = None):
     Args:
         task_description: 测试用例描述，来自 Excel 用例。为 None 时使用默认硬编码任务。
     """
-    profile = BrowserProfile(headless=False, disable_security=True)
-    browser_session = BrowserSession(browser_profile=profile)
+    llm = ChatOpenAI(
+        api_key="sk-d88a8e8f14894be28707adbae1b024c9",
+        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+        model="qwen-plus"
+    )
+
+    # 新版 browser_use 直接传参到 Browser（即 BrowserSession），无需 BrowserConfig
+    # 注意：enable_default_extensions=False 是因为国内网络无法访问 Google 扩展商店，
+    # 若启用会导致扩展下载超时（60s+）从而触发启动超时。
+    browser = Browser(
+        headless=False, # 展示界面
+        disable_security=True, # 禁用部分安全限制，便于自动化
+        enable_default_extensions=False, # 禁用在 Google 商店下载扩展，避免超时
+        # chrome_instance_path=r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", # edge路径
+    # 不指定 chrome_instance_path，让 Playwright 自动管理浏览器生命周期
+    )
+
+    # 对 BrowserSession 打补丁优化 DOM
+    # browser 本身就是 BrowserSession 的别名
+    session = browser
     patch_browser_session_with_optimizer(
-        browser_session,
+        session,
         use_accessibility_tree=True,
         use_dom_distillation=True
     )
@@ -240,32 +259,25 @@ async def process_by_ai(task_description: str | None = None):
     else:
         task = task_description
 
-    llm = ChatOpenAI(
-        api_key="sk-4iYDw8D3Sg5FSMFSVqg5Xw",
-        base_url="https://litellm.peak3.com",
-        model="openai/deepseek-v4-flash"
-    )
     agent = Agent(
         llm=llm,
-        browser_session=browser_session,
+        browser=browser,
         message_context="你正在进行web软件自动化测试，你最终返回的结果是测试通过或者不通过，不需要返回其他内容",
         task=task,
-        register_new_step_callback=step_callback,
-        register_done_callback=done_callback,
-        max_steps=15,
-        use_judge=False  # 关掉 judge，避免结束后额外等待
     )
     history = await agent.run()
     result = history.final_result()
     print("执行结果:", result)
-    await browser_session.close()
+    # 显式关闭浏览器，释放资源
+    await browser.close()
+    # 短暂等待，让子进程有时间彻底退出
     await asyncio.sleep(0.2)
 
 
-# 设置 🏷️browser_use 相关的日志级别为 DEBUG
-logging.getLogger('browser_use').setLevel(logging.DEBUG)
-# 设置控制台输出格式，方便阅读
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
 if __name__ == "__main__":
+    # 设置 🏷️browser_use 相关的日志级别为 DEBUG
+    logging.getLogger('browser_use').setLevel(logging.DEBUG)
+    # 设置控制台输出格式，方便阅读
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
     asyncio.run(process_by_ai())
